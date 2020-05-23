@@ -1,0 +1,35 @@
+{
+  "name": "@zwyssigly/functional",
+  "version": "0.0.1",
+  "description": "tba",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "coverage": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zwyssigly/functional.git"
+  },
+  "keywords": [
+    "functional",
+    "monad",
+    "monads",
+    "result",
+    "option"
+  ],
+  "author": "Zwyssigly",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Zwyssigly/functional/issues"
+  },
+  "homepage": "https://github.com/Zwyssigly/functional#readme",
+  "devDependencies": {
+    "@types/jest": "^25.2.3",
+    "@types/node": "^14.0.5",
+    "jest": "^26.0.1",
+    "ts-jest": "^26.0.0",
+    "typescript": "^3.9.3"
+  },
+  "dependencies": {}
+}
