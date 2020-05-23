@@ -1,7 +1,7 @@
 {
   "name": "@zwyssigly/functional",
-  "version": "0.0.1",
-  "description": "tba",
+  "version": "0.0.2",
+  "description": "An extensive option and result implementation in Typescript",
   "main": "dist/index.js",
   "scripts": {
     "test": "jest",
@@ -16,7 +16,9 @@
     "monad",
     "monads",
     "result",
-    "option"
+    "option",
+    "async",
+    "promise"
   ],
   "author": "Zwyssigly",
   "license": "Apache-2.0",

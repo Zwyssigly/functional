@@ -15,6 +15,7 @@ export interface Result<T, E> {
 
   unwrap() : T | never;
   unwrapOr<U>(onErr: (err: E) => U) : T | U;
+  unwrapErr() : E | never;
 
   andThen<U>(onOk: (ok: T) => Result<U, E>) : Result<U, E>;
   orThen<U>(onErr: (err: E) => Result<U, E>) : Result<T | U, E>;
@@ -52,11 +53,14 @@ class ResultMixin<T, E> {
   map<U, W>(onOk: (ok: T) => U, onErr: (err: E) => W) : Result<U, W> {
     return this.match<Result<U, W>>(ok => Ok(onOk(ok)), err => Err(onErr(err)));
   }
-  unwrap() : T {
+  unwrap() : T | never {
     return this.match(s => s, _ => { throw UnwrapException });
   }
   unwrapOr<U>(onErr: (err: E) => U) : T | U {
     return this.match<T | U>(s => s, onErr);
+  }
+  unwrapErr() : E | never {
+    return this.match(_ => { throw UnwrapException }, e => e);
   }
   andThen<U>(onOk: (ok: T) => Result<U, E>) : Result<U, E> {
     return this.match(onOk, err => Err(err));
@@ -116,7 +120,7 @@ export function Ok<T>(ok: T) : Result<T, never> { return new ResultOk(ok); }
 export function Err<E>(err: E) : Result<never, E> { return new ResultErr(err); }
 
 export interface AsyncResult<T, E> extends PromiseLike<Result<T, E>> {
-  match<U>(onOk: (ok: T) => PromiseLike<U>, onErr: (err: E) => PromiseLike<U>): PromiseLike<U>;
+  match<U>(onOk: (ok: T) => U, onErr: (err: E) => U): PromiseLike<U>;
   isOk(): PromiseLike<boolean>;
   isErr(): PromiseLike<boolean>;
   ifOk(onOk: (ok: T) => void): PromiseLike<void>;
@@ -126,6 +130,7 @@ export interface AsyncResult<T, E> extends PromiseLike<Result<T, E>> {
   map<U, W>(onOk: (ok: T) => U, onErr: (err: E) => W): AsyncResult<U, W>;
   unwrap(): PromiseLike<T>;
   unwrapOr<U>(onErr: (err: E) => U): PromiseLike<T | U>;
+  unwrapErr() : PromiseLike<E>;
   andThen<U>(onOk: (ok: T) => Result<U, E>): AsyncResult<U, E>;
   orThen<U>(onErr: (err: E) => Result<U, E>): AsyncResult<T | U, E>;
   matchAsync<U>(onOk: (ok: T) => PromiseLike<U>, onErr: (err: E) => PromiseLike<U>): PromiseLike<U>;
@@ -148,7 +153,7 @@ class AsyncResultImpl<T, E> implements AsyncResult<T, E> {
     return this.promise.then(onfulfilled, onrejected);
   }
 
-  match<U>(onOk: (ok: T) => PromiseLike<U>, onErr: (err: E) => PromiseLike<U>) : PromiseLike<U> {
+  match<U>(onOk: (ok: T) => U, onErr: (err: E) => U) : PromiseLike<U> {
     return this.then(o => o.match(onOk, onErr));
   }
   isOk() : PromiseLike<boolean> {
@@ -177,6 +182,9 @@ class AsyncResultImpl<T, E> implements AsyncResult<T, E> {
   }
   unwrapOr<U>(onErr: (err: E) => U) : PromiseLike<T | U> {
     return this.then(o => o.unwrapOr(onErr));
+  }
+  unwrapErr() : PromiseLike<E> {
+    return this.then(o => o.unwrapErr());
   }
   andThen<U>(onOk: (ok: T) => Result<U, E>) : AsyncResult<U, E> {
     return AsyncResult(this.then(o => o.andThen(onOk)));
@@ -213,4 +221,19 @@ class AsyncResultImpl<T, E> implements AsyncResult<T, E> {
 export function AsyncResult<T, E>(promise: PromiseLike<Result<T, E>>) : AsyncResult<T, E> {
   return promise instanceof AsyncResultImpl
     ? promise : new AsyncResultImpl(promise);
+}
+
+export type RailwayObject<T, E> = {
+  [P in keyof T]: () => Result<T[P], E>;
+}
+
+export function railwayObject<T, E>(validator : RailwayObject<T, E>): Result<T, E> {
+  let obj: Partial<T> = {};
+  for (let key in validator) {
+    var result = validator[key]();
+    if (result.isErr()) 
+      return Err(result.unwrapErr());
+    obj[key] = result.unwrap();
+  }
+  return Ok(obj as T);
 }
