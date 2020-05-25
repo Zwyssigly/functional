@@ -1,8 +1,14 @@
 # Introduction
 Functional is a package to improve your code stability and make your code more explicit, by adopting two common monads Option and Result from functional languages like Rust.
 
+## Installation
+`npm install @zwyssigly/functional --save`
+
 ## Examples
 ```javascript
+// import stuff
+import { Result, Ok, Err } from '@zwyssigly/functional'
+
 // function returning Result
 function parseDate(value: string | undefined) : Result<Date, string>{
 	if (!value)
