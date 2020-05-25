@@ -4,7 +4,7 @@ Functional is a package to improve your code stability and make your code more e
 ## Installation
 `npm install @zwyssigly/functional --save`
 
-## Examples
+## How to use Result
 ```javascript
 // import stuff
 import { Result, Ok, Err } from '@zwyssigly/functional'
@@ -22,7 +22,7 @@ function parseDate(value: string | undefined) : Result<Date, string>{
 }
 
 // async function returning Result
-function saveDate(value: Date) : Promise<Result<Date, string> {
+async function saveDate(value: Date) : Promise<Result<Date, string> {
 	// your persistance logic
 	return Ok(value);
 }
@@ -35,5 +35,28 @@ app.post('/api/date', async (req, res) => {
 });
 ```
 
-## Option
+## How to use Option
+```javascript
+// import stuff
+import { Some, None, Option } from '@zwyssigly/funtional`
+
+// returning option
+function getDate(id: string) : Option<Date>
+{
+	if (exists(id))
+		return Some(new Date());
+	return None;
+}
+
+let option = getDate('today');
+
+// execute something if none
+option.ifNone(() => console.log("No date with such id));
+
+// map some value
+let stringOption: Option<string> = option.map(some => some.toString());
+
+// execute match option
+let dateAsString = option.match(some => some.toString(), () => 'None');
+```
 
