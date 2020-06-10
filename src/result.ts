@@ -237,3 +237,14 @@ export function railwayObject<T, E>(validator : RailwayObject<T, E>): Result<T, 
   }
   return Ok(obj as T);
 }
+
+export function railwayArray<T, E>(validator: (() => Result<T, E>)[]): Result<T[], E> {
+  let array: T[] = [];
+  for (const val of validator) {
+    var result = val();
+    if (result.isErr())
+      return Err(result.unwrapErr());
+    array.push(result.unwrap());
+  }
+  return Ok(array);
+}

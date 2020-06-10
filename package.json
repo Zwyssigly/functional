@@ -1,6 +1,6 @@
 {
   "name": "@zwyssigly/functional",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "An extensive option and result implementation in Typescript",
   "main": "dist/index.js",
   "scripts": {
